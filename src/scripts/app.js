@@ -32,6 +32,11 @@ const colourlist = [
 
 $(() => {
      setState( colourlist );
+
+  $('.colour-list__colour').on('click', (e)=>{
+      const $el = $(e.currentTarget)
+      setContrast($el)
+    })
 })
 
 function setState( colourlist ){
@@ -46,7 +51,14 @@ function setState( colourlist ){
   $('#list').sortable({update: handleSortableUpdate})
 }
 
-function handleSortableUpdate() {
+function setContrast( $el ) {
+  $('#colour-previous').css('background-color', $el.prev().attr('id'))
+  $('#colour-current').css('background-color', $el.attr('id'))
+  $('#colour-next').css("background-color", $el.next().attr('id'))
+}
+
+function handleSortableUpdate(event, ui) {
+  setContrast( $(ui.item));
   setOrderedList($('#list').sortable("toArray"));
 }
 

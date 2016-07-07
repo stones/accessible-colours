@@ -1,44 +1,73 @@
 
-body{
-    font: 14px/1em  "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
+body {
+    font: 14px/1em "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
 }
 
-h1{
+h1 {
 
-    color:#444;
-    text-align:center;
+    color: #444;
+    text-align: center;
     text-transform: uppercase;
 }
+
+#contrast {
+    margin: 0 auto;
+}
+
+.contrast-colours {
+    list-style: none;
+    padding: 0;
+}
+
+.contrast-colour {
+    display: block;
+    float: left;
+    height: 20px;
+    width: 33%;
+}
+
+.contrast-ratios {
+    clear: both;
+    list-style: none;
+    padding: 0;
+
+}
+
+.contrast-ratio {
+    display: block;
+    float: left;
+    height:80px;
+    width: 49%;
+    text-align: center;
+
+}
+
 .colour-list {
-    position:absolute;
-    top:50%;
-    width:100%;
-    margin: -60px 0 0 ;
-    list-style:none;
-    padding:0;
+    list-style: none;
+    padding: 0;
 }
 
-
-.colour-list__colour{
-    display:block;
-    float:left;
-    height:120px;
+.colour-list__colour {
+    display: block;
+    float: left;
+    height: 120px;
 }
 
-.data-holder{
+.data-holder {
     bottom: 0;
-    padding: 10px 0  5px;
-    position:fixed;
-    width:100%;
+    padding: 10px 0 5px;
+    position: fixed;
+    width: 100%;
 }
-.colour-order{
-    display:block;
+
+.colour-order {
+    display: block;
     height: 40px;
     padding: 0;
     margin: 0 auto;
-    width:90%;
+    width: 90%;
 }
 
-.action-button{
-    display:none;
+.action-button {
+    display: none;
 }

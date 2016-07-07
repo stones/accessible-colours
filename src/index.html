@@ -6,13 +6,25 @@
 </head>
 <body>
 <h1>Colour Arranger</h1>
+<div id="contrast">
+    <ul class="contrast-colours">
+        <li id="colour-previous" class="contrast-colour"></li>
+        <li id="colour-current" class="contrast-colour"></li>
+        <li id="colour-next" class="contrast-colour"></li>
+    </ul>
+
+    <ul class="contrast-ratios">
+        <li id="contrast-previous" class="contrast-ratio"></li>
+        <li id="contrast-next" class="contrast-ratio"></li>
+    </ul>
+</div>
+
+
 <ul id="list" class="colour-list"></ul>
-
-
 <div class="data-holder">
     <textarea id="input-colours" class="colour-order"> </textarea>
 
-    <a href="#" id="action-load-data" class="action-button action-button__load" > Load</a>
+    <a href="#" id="action-load-data" class="action-button action-button__load"> Load</a>
     <a href="#" id="action-undo" class="action-button action-button__load">Undo</a>
 </div>
 
