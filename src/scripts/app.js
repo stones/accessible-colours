@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import 'jquery-ui/sortable'
-
+import '../styles/app.css'
 
 const colourlist = [
   '#ff7350',
@@ -31,16 +31,20 @@ const colourlist = [
 
 
 $(() => {
+     setState( colourlist );
+})
+
+function setState( colourlist ){
+
   colourlist.forEach((colour) => {
-  $('#list'
-).
-append('<li style="background-color:' + colour + '" id="' + colour + '"> coll</li>')
-})
+    $('#list').append('<li style="background-color:' + colour + ';'+
+    ' width:' + 99.5 /colourlist.length +'%;' +
+    '" id="' + colour +
+    '" class="colour-list__colour"></li>')
+  })
 
-$('#list').sortable({update: handleSortableUpdate})
-
-})
-
+  $('#list').sortable({update: handleSortableUpdate})
+}
 
 function handleSortableUpdate() {
   setOrderedList($('#list').sortable("toArray"));
@@ -49,7 +53,8 @@ function handleSortableUpdate() {
 
 function setOrderedList(ordered) {
 
-  $('#outputList').text(JSON.stringify(ordered))
+  $('#input-colours').text(JSON.stringify(ordered))
 
 }
+
 

@@ -1,7 +1,7 @@
 const {resolve} = require('path')
 module.exports = env => {
   return {
-    entry: './js/app.js',
+    entry: './scripts/app.js',
     output: {
       filename: 'bundle.js',
       path: resolve(__dirname, 'dist'),

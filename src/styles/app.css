@@ -1,0 +1,35 @@
+
+body{
+    font: 14px/1em  "Helvetica Neue", "Helvetica", "Arial", "sans-serif";
+}
+
+.colour-list {
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+
+.colour-list__colour{
+    display:block;
+    float:left;
+    height:120px;
+}
+
+.data-holder{
+    bottom: 0;
+    padding: 10px 0  5px;
+    position:fixed;
+    width:100%;
+}
+.colour-order{
+    display:block;
+    height: 40px;
+    padding: 0;
+    margin: 0 auto;
+    width:90%;
+}
+
+.action-button{
+    display:none;
+}

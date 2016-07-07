@@ -1,16 +1,22 @@
 <!doctype html>
 <html lang="en" data-framework="javascript">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Colour Arranger</title>
-  </head>
-  <body >
-      <h1>Colour Arranger</h1>
-      <ul id="list"></ul>
+</head>
+<body>
+<h1>Colour Arranger</h1>
+<ul id="list" class="colour-list"></ul>
 
 
-      <div id="outputList"></div>
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-    <script src="/bundle.js"></script>
-  </body>
+<div class="data-holder">
+    <textarea id="input-colours" class="colour-order"> </textarea>
+
+    <a href="#" id="action-load-data" class="action-button action-button__load" > Load</a>
+    <a href="#" id="action-undo" class="action-button action-button__load">Undo</a>
+</div>
+
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+<script src="/bundle.js"></script>
+</body>
 </html>
