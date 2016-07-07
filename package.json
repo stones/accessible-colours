@@ -20,7 +20,8 @@
     "build": "webpack --env.dev",
     "build:prod": "webpack --env.prod -p",
     "lint": "eslint ."
-  },"devDependencies": {
+  },
+  "devDependencies": {
     "babel": "6.5.2",
     "babel-core": "6.9.1",
     "babel-eslint": "6.0.4",
@@ -38,6 +39,8 @@
     "eslint-plugin-import": "1.8.1",
     "ghooks": "1.2.4",
     "istanbul": "0.4.3",
+    "jquery": "^3.0.0",
+    "jquery-ui": "^1.10.5",
     "karma": "0.13.22",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "1.0.1",
