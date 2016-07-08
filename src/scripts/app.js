@@ -2,16 +2,20 @@ import $ from 'jquery'
 import 'jquery-ui/sortable'
 import '../styles/app.css'
 
-const levelMessages = {
-  'semitransparent': 'The background is semi-transparent, so the contrast ratio cannot be precise. Depending on what’s going to be underneath, it could be any of the following:',
-  'fail': 'Fails WCAG 2.0 :-(',
-  'aa-large': 'Passes AA for large text (above 18pt or bold above 14pt)',
-  'aa': 'Passes AA level for any size text and AAA for large text (above 18pt or bold above 14pt)',
-  'aaa': 'Passes AAA level for any size text'
-};
+import color from "tinycolor2";
 
+const standards = [
+  {
+    name: 'AA',
+    sizes: ['small', 'large']
+  },
+  {
+    name: 'AAA',
+    sizes: ['small', 'large']
+  }
+]
 
-const list = [
+let list = [
   '#ff7350',
   '#eeb016',
   '#ed8cba',
@@ -42,247 +46,112 @@ const list = [
 $(() => {
   setState(list);
 
-  $('.colour-list__colour').on('click', (e) => {
+  $('.colour-list').on('click', '.colour-list__colour', (e) => {
     const $el = $(e.currentTarget)
     setContrast($el)
+  })
+
+  $('.colour-list').on('dblclick', '.colour-list__colour', (e) => {
+    const colour = $(e.currentTarget).attr('id')
+    let listing = [...list]
+
+    let index = listing.indexOf( colour )
+    let head = listing.splice(0, index)
+
+    const test = orderColours( listing, colour)
+
+    setState(head.concat( test ))
   })
 })
 
 function setState(colourlist) {
+  $('#list').empty()
 
-  colourlist.forEach((colour) => {
-    $('#list').append('<li style="background-color:' + colour + ';' +
+  colourlist.forEach( (colour) => {
+
+    $("#list").append('<li style="background-color:' + colour + ';' +
     ' width:' + 99.5 / colourlist.length + '%;' +
     '" id="' + colour +
     '" class="colour-list__colour"></li>')
   })
 
   $('#list').sortable({update: handleSortableUpdate})
+
+  setOrderedList(colourlist)
 }
+
+
+function orderColours( list, head ){
+
+  let tail = [...list]
+  let colours = [ head ]
+
+  let index = tail.indexOf( head );
+
+  if (index > -1) {
+    tail.splice(index, 1);
+  }
+
+  for(let i = tail.length -1; i >= 0; i--){
+    let head = color.mostReadable(head, tail).toHexString()
+    colours.push(head)
+    index = tail.indexOf( head )
+    tail.splice(index, 1);
+  }
+
+    return colours;
+}
+
 
 function setContrast($el) {
   const previousColour = $el.prev().attr('id');
   const currentColour = $el.attr('id');
   const nextColour = $el.next().attr('id');
 
- let previousContrast = calculateContrast(previousColour, currentColour)
-  let nextContrast = calculateContrast(currentColour, nextColour)
+
+  $("#ratio-previous").text( Math.round( color.readability( previousColour, currentColour )) )
+  $("#ratio-next").text( Math.round( color.readability( nextColour, currentColour )));
 
 
-  const previousLevels = getWCAGLevel(previousContrast)
-  const nextLevels = getWCAGLevel(nextContrast)
+  $('#previousWCAG').empty();
 
-  $("#ratio-previous").text(previousContrast.ratio)
-  $("#ratio-next").text(nextContrast.ratio)
+  standards.forEach((level) => {
 
+    level.sizes.forEach((size) => {
+      let name = level.name;
+      let status = color.isReadable( previousColour, currentColour, { level: name, size: size} );
+      $('#previousWCAG').append('<li > ' + name+' Standard  ('+ size +'): '+ status +'</li>')
+    })
 
-  previousLevels.forEach((colour) => {
-    $('#previousWCAG').empty().append('<li >'+ colour +'</li>')
   })
 
 
-  nextLevels.forEach((colour) => {
-    $('#nextWCAG').empty().append('<li >'+ colour +'</li>')
-})
+  $('#nextWCAG').empty();
+
+  standards.forEach((level) => {
+    level.sizes.forEach((size) => {
+      let name = level.name;
+      let status = color.isReadable( nextColour, currentColour, { level: name, size: size} )
+      $('#nextWCAG').append('<li > ' +
+        name +' Standard  ('+ size +'): '+ status +'</li>')
+    })
+  })
+
 
   $('#colour-previous').css('background-color', previousColour)
   $('#colour-current').css('background-color', currentColour)
-  $('#colour-next').css("background-color", nextColour)
+  $('#colour-next').css('background-color', nextColour)
 }
 
 function handleSortableUpdate(event, ui) {
   setContrast($(ui.item));
-  setOrderedList($('#list').sortable("toArray"));
+  setOrderedList($('#list').sortable("toArray"))
 }
 
 
 function setOrderedList(ordered) {
-
   $('#input-colours').text(JSON.stringify(ordered))
 
+  list = ordered
 }
 
-function calculateContrast(colourA, colourB) {
-  // Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef
-
-  const rgba1 = getRGBA(colourA)
-  let rgba2 = getRGBA(colourB)
-
-  const alpha1 = rgba1[3];
-  const alpha2 = rgba2[3];
-
-  console.log(rgba1)
-
-  var alpha = alpha1;
-
-  if (alpha >= 1) {
-    if (alpha2 < 1) {
-      rgba2 = overlayOn(rgba1);
-    }
-
-
-    const lum1 = luminance(rgba1)
-    const lum2 = luminance(rgba2)
-
-
-
-    var l1 =   lum1 + .05,
-      l2 = lum2 + .05,
-      ratio = l1 / l2
-
-    if (l2 > l1) {
-      ratio = 1 / ratio
-    }
-
-
-    ratio = preciseRound(ratio, 1)
-
-    return {
-      ratio: ratio,
-      error: 0,
-      min: ratio,
-      max: ratio
-    };
-  }
-
-}
-
-
-// Overlay a color over another
-function overlayOn(color) {
-  var overlaid = [...color]
-
-  var alpha = color[3];
-
-  if (alpha >= 1) {
-    return overlaid;
-  }
-
-  for(var i=0; i<3; i++) {
-    overlaid[i] = overlaidgba[i] * alpha + color[i] * color[3] * (1 - alpha);
-  }
-
-  overlaid[3] = alpha + rgba[3] * (1 - alpha);
-
-  return overlaid;
-}
-
-
-function getWCAGLevel(contrast ){
-  const levels = {
-    'fail': {
-      range: [0, 3],
-      color: 'hsl(0, 100%, 40%)'
-    },
-    'aa-large': {
-      range: [3, 4.5],
-      color: 'hsl(40, 100%, 45%)'
-    },
-    'aa': {
-      range: [4.5, 7],
-      color: 'hsl(80, 60%, 45%)'
-    },
-    'aaa': {
-      range: [7, 22],
-      color: 'hsl(95, 60%, 41%)'
-    }
-  };
-
-  const min = contrast.min
-  const max = contrast.max
-  const range = max - min
-  let percentages = []
-  let messages = [];
-
-  for (var level in levels) {
-    const bounds = levels[level].range
-     const lower = bounds[0]
-     const  upper = bounds[1]
-
-    if (min < upper && max >= lower) {
-      messages.push( levelMessages[level]);
-
-      percentages.push({
-        level: level,
-        percentage: 100 * rangeIntersect(min, max, upper, lower) / range
-      });
-    }
-  }
-
-
-  return messages;
-
-}
-
-
-function rangeIntersect(min, max, upper, lower) {
-  return (max < upper? max : upper) - (lower < min? min : lower);
-}
-
-function luminance ( temp) {
-  // Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
-  const rgba = temp.slice();
-
-  for(let i=0; i<3; i++) {
-    let rgb = rgba[i];
-
-    rgb /= 255;
-
-    rgb = rgb < .03928 ? rgb / 12.92 : Math.pow((rgb + .055) / 1.055, 2.4);
-
-    rgba[i] = rgb;
-  }
-
-  return .2126 * rgba[0] + .7152 * rgba[1] + 0.0722 * rgba[2];
-}
-
-
-function convertHex(hex,opacity){
-  hex = hex.replace('#','');
-  const r = parseInt(hex.substring(0,2), 16)
-  const g = parseInt(hex.substring(2,4), 16)
-  const b = parseInt(hex.substring(4,6), 16)
-
-  return 'rgba('+r+', '+g+', '+b+', '+opacity/100+')'
-}
-
-function getRGBA(rgba){
-
-
-  if (rgba === 'transparent') {
-    rgba = [0,0,0,0];
-  }
-  else if (typeof rgba === 'string') {
-    let rgbaString = rgba;
-
-
-    if(rgbaString.indexOf('#') !== -1){
-      rgbaString = convertHex(rgba,100)
-    }
-
-    rgba = rgbaString.match(/rgba?\(([\d.]+), ([\d.]+), ([\d.]+)(?:, ([\d.]+))?\)/)
-
-    if (rgba) {
-      rgba.shift();
-    }else {
-      throw new Error('Invalid string: ' + rgbaString);
-    }
-  }
-
-  if (rgba[3] === undefined) {
-    rgba[3] = 1;
-  }
-
-  rgba = rgba.map(function (a) { return preciseRound(a, 3) });
-
-  return rgba;
-
-}
-
-function preciseRound(number, decimals) {
-  decimals = +decimals || 0;
-
-  var multiplier = Math.pow(10, decimals)
-
-  return Math.round(number * multiplier) / multiplier
-}
