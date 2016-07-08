@@ -42,6 +42,12 @@ h1 {
 
 }
 
+
+
+.contrast-ratio__levels{
+    list-style:none;
+}
+
 .colour-list {
     list-style: none;
     padding: 0;

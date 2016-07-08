@@ -2,6 +2,15 @@ import $ from 'jquery'
 import 'jquery-ui/sortable'
 import '../styles/app.css'
 
+const levelMessages = {
+  'semitransparent': 'The background is semi-transparent, so the contrast ratio cannot be precise. Depending on what’s going to be underneath, it could be any of the following:',
+  'fail': 'Fails WCAG 2.0 :-(',
+  'aa-large': 'Passes AA for large text (above 18pt or bold above 14pt)',
+  'aa': 'Passes AA level for any size text and AAA for large text (above 18pt or bold above 14pt)',
+  'aaa': 'Passes AAA level for any size text'
+};
+
+
 const list = [
   '#ff7350',
   '#eeb016',
@@ -60,8 +69,21 @@ function setContrast($el) {
   let nextContrast = calculateContrast(currentColour, nextColour)
 
 
-  $("#contrast-previous").text(previousContrast.ratio)
-  $("#contrast-next").text(nextContrast.ratio)
+  const previousLevels = getWCAGLevel(previousContrast)
+  const nextLevels = getWCAGLevel(nextContrast)
+
+  $("#ratio-previous").text(previousContrast.ratio)
+  $("#ratio-next").text(nextContrast.ratio)
+
+
+  previousLevels.forEach((colour) => {
+    $('#previousWCAG').empty().append('<li >'+ colour +'</li>')
+  })
+
+
+  nextLevels.forEach((colour) => {
+    $('#nextWCAG').empty().append('<li >'+ colour +'</li>')
+})
 
   $('#colour-previous').css('background-color', previousColour)
   $('#colour-current').css('background-color', currentColour)
@@ -146,6 +168,56 @@ function overlayOn(color) {
 }
 
 
+function getWCAGLevel(contrast ){
+  const levels = {
+    'fail': {
+      range: [0, 3],
+      color: 'hsl(0, 100%, 40%)'
+    },
+    'aa-large': {
+      range: [3, 4.5],
+      color: 'hsl(40, 100%, 45%)'
+    },
+    'aa': {
+      range: [4.5, 7],
+      color: 'hsl(80, 60%, 45%)'
+    },
+    'aaa': {
+      range: [7, 22],
+      color: 'hsl(95, 60%, 41%)'
+    }
+  };
+
+  const min = contrast.min
+  const max = contrast.max
+  const range = max - min
+  let percentages = []
+  let messages = [];
+
+  for (var level in levels) {
+    const bounds = levels[level].range
+     const lower = bounds[0]
+     const  upper = bounds[1]
+
+    if (min < upper && max >= lower) {
+      messages.push( levelMessages[level]);
+
+      percentages.push({
+        level: level,
+        percentage: 100 * rangeIntersect(min, max, upper, lower) / range
+      });
+    }
+  }
+
+
+  return messages;
+
+}
+
+
+function rangeIntersect(min, max, upper, lower) {
+  return (max < upper? max : upper) - (lower < min? min : lower);
+}
 
 function luminance ( temp) {
   // Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
